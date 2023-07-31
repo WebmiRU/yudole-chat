@@ -1,56 +1,50 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
+	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"time"
+	"yudole-chat/twitch"
 )
 
-var ws_client []websocket.Conn
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  10000,
-	WriteBufferSize: 10000,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
 func main() {
-	http.HandleFunc("/chat/streamer", echo)
-	http.HandleFunc("/chat/stream", echo)
+	godotenv.Load()
+
+	http.HandleFunc("/chat/streamer", accept)
+	http.HandleFunc("/chat/stream", accept)
+	http.HandleFunc("/chat", accept)
 	http.HandleFunc("/", home)
 
-	log.Fatal(http.ListenAndServe("0.0.0.0:5367", nil))
-}
+	go twitch.Connect()
 
-func echo(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Print("upgrade:", err)
-		return
-	}
-
-	for {
-		_, message, err := ws.ReadMessage()
-
-		if err != nil {
-			log.Println("read:", err)
-			break
+	go func() {
+		for {
+			fmt.Println("WS CLIENTS:", ws_clients)
+			time.Sleep(1 * time.Second)
 		}
+	}()
 
-		log.Printf("recv: %s", message)
+	go func() {
+		for {
+			select {
+			case message := <-twitch.Out:
+				fmt.Println("MESSAGE:", message)
 
-		err = ws.WriteMessage(1, message)
-		if err != nil {
-			log.Println("write:", err)
-			break
+				for _, ws := range ws_clients {
+					ws.WriteJSON(message)
+				}
+				break
+			case system := <-twitch.OutSystem:
+				fmt.Println("SYSTEM MESSAGE:", system)
+				for _, ws := range ws_clients {
+					ws.WriteJSON(system)
+				}
+				break
+			}
 		}
-	}
+	}()
 
-	ws.Close()
-}
-
-func home(w http.ResponseWriter, r *http.Request) {
-	//homeTemplate.Execute(w, "ws://"+r.Host+"/echo")
+	log.Fatal(http.ListenAndServe("0.0.0.0:5367", nil)) // Websocket main server
 }

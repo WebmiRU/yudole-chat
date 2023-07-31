@@ -5,15 +5,14 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
-	"time"
 	"yudole-chat/twitch"
 )
 
 func main() {
 	godotenv.Load()
 
-	http.HandleFunc("/chat/streamer", accept)
-	http.HandleFunc("/chat/stream", accept)
+	//http.HandleFunc("/chat/streamer", accept)
+	//http.HandleFunc("/chat/stream", accept)
 	http.HandleFunc("/chat", accept)
 	http.HandleFunc("/", home)
 
@@ -21,16 +20,13 @@ func main() {
 
 	go func() {
 		for {
-			fmt.Println("WS CLIENTS:", ws_clients)
-			time.Sleep(1 * time.Second)
-		}
-	}()
-
-	go func() {
-		for {
 			select {
 			case message := <-twitch.Out:
 				fmt.Println("MESSAGE:", message)
+
+				for len(ws_clients) == 0 {
+					continue
+				}
 
 				for _, ws := range ws_clients {
 					ws.WriteJSON(message)
@@ -38,6 +34,11 @@ func main() {
 				break
 			case system := <-twitch.OutSystem:
 				fmt.Println("SYSTEM MESSAGE:", system)
+
+				for len(ws_clients) == 0 {
+					continue
+				}
+
 				for _, ws := range ws_clients {
 					ws.WriteJSON(system)
 				}

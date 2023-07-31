@@ -7,12 +7,13 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"yudole-chat/messages"
 )
 
-var Out = make(chan messages.Channel, 999)
-var OutSystem = make(chan messages.System, 999)
+var Out = make(chan messages.Channel, 9999)
+var OutSystem = make(chan messages.System, 9999)
 
 var re = regexp.MustCompile(`^(?:@([^\r\n ]*) +|())(?::([^\r\n ]+) +|())([^\r\n ]+)(?: +([^:\r\n ]+[^\r\n ]*(?: +[^:\r\n ]+[^\r\n ]*)*)|())?(?: +:([^\r\n]*)| +())?[\r\n]*$`)
 var socket net.Conn
@@ -126,7 +127,7 @@ func message(msg string) Message {
 	tags := tags(matches[1])
 	var nick string
 
-	//fmt.Println("IRC MESSAGE:", msg)
+	fmt.Println("IRC MESSAGE:", msg)
 
 	if v, ok := tags["display-name"]; ok {
 		nick = v
@@ -146,6 +147,32 @@ func message(msg string) Message {
 }
 
 func smiles(message Message) string {
+	msg := message.Text
+	offset := 0
 
-	return ""
+	if _, ok := message.Tags["emotes"]; !ok {
+		return msg
+	}
+
+	if len(message.Tags["emotes"]) == 0 {
+		return msg
+	}
+
+	for _, smile := range strings.Split(message.Tags["emotes"], "/") {
+		smileIdFromTo := strings.Split(smile, ":")
+		smileId := smileIdFromTo[0]
+		smileFromTo := strings.Split(smileIdFromTo[1], "-")
+		smileFrom, _ := strconv.Atoi(smileFromTo[0])
+		smileTo, _ := strconv.Atoi(smileFromTo[1])
+
+		smileText := msg[smileFrom+offset : smileTo+1+offset]
+		smileReplacer := fmt.Sprintf("<img class=\"smile smile-twitch\" src=\"https://static-cdn.jtvnw.net/emoticons/v2/%s/default/dark/1.0\" alt=\"%s\"/>", smileId, smileText)
+		msg = msg[:smileFrom+offset] + smileReplacer + msg[smileTo+1+offset:]
+		offset += smileFrom - smileTo + len(smileReplacer) - 1
+		fmt.Println("MESSAGE REPLACED:", msg)
+
+		fmt.Println(smileFrom, "-", smileTo)
+	}
+
+	return msg
 }

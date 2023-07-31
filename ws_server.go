@@ -47,7 +47,7 @@ func accept(w http.ResponseWriter, r *http.Request) {
 	}
 
 	idx := slices.Index(ws_clients, ws)
-	slices.Delete(ws_clients, idx, idx+1)
+	ws_clients = slices.Delete(ws_clients, idx, idx+1)
 
 	err = ws.Close()
 	if err != nil {

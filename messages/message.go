@@ -14,6 +14,7 @@ type Message struct {
 }
 
 type Channel struct {
+	Service string  `json:"service"`
 	Type    string  `json:"type"`
 	User    User    `json:"user"`
 	Message Message `json:"message"`

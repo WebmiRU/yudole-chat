@@ -63,7 +63,8 @@ func Connect() {
 
 			case "privmsg":
 				Out <- messages.Channel{
-					Type: "channel/message",
+					Service: "twitch",
+					Type:    "channel/message",
 					User: messages.User{
 						Login:     msg.Login,
 						Nick:      msg.Nick,
@@ -147,32 +148,32 @@ func message(msg string) Message {
 }
 
 func smiles(message Message) string {
-	msg := message.Text
+	msg := []rune(message.Text)
 	offset := 0
 
 	if _, ok := message.Tags["emotes"]; !ok {
-		return msg
+		return message.Text
 	}
 
 	if len(message.Tags["emotes"]) == 0 {
-		return msg
+		return message.Text
 	}
 
 	for _, smile := range strings.Split(message.Tags["emotes"], "/") {
 		smileIdFromTo := strings.Split(smile, ":")
 		smileId := smileIdFromTo[0]
-		smileFromTo := strings.Split(smileIdFromTo[1], "-")
-		smileFrom, _ := strconv.Atoi(smileFromTo[0])
-		smileTo, _ := strconv.Atoi(smileFromTo[1])
 
-		smileText := msg[smileFrom+offset : smileTo+1+offset]
-		smileReplacer := fmt.Sprintf("<img class=\"smile smile-twitch\" src=\"https://static-cdn.jtvnw.net/emoticons/v2/%s/default/dark/1.0\" alt=\"%s\"/>", smileId, smileText)
-		msg = msg[:smileFrom+offset] + smileReplacer + msg[smileTo+1+offset:]
-		offset += smileFrom - smileTo + len(smileReplacer) - 1
-		fmt.Println("MESSAGE REPLACED:", msg)
+		for _, v := range strings.Split(smileIdFromTo[1], ",") {
+			smileFromTo := strings.Split(v, "-")
+			smileFrom, _ := strconv.Atoi(smileFromTo[0])
+			smileTo, _ := strconv.Atoi(smileFromTo[1])
+			smileText := msg[smileFrom+offset : smileTo+offset+1]
+			smileReplacer := []rune(fmt.Sprintf("<img class=\"smile smile-twitch\" src=\"https://static-cdn.jtvnw.net/emoticons/v2/%s/default/dark/1.0\" alt=\"%s\"/>", smileId, string(smileText)))
+			msg = append(msg[:smileFrom+offset], append(smileReplacer, msg[smileTo+1+offset:]...)...)
+			offset += smileFrom - smileTo + len(smileReplacer) - 1
+		}
 
-		fmt.Println(smileFrom, "-", smileTo)
 	}
 
-	return msg
+	return string(msg)
 }

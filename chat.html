@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Yudole chat</title>
+</head>
+<body>
+
+<main>
+
+</main>
+
+<script>
+    let socket = new WebSocket("ws://127.0.0.1:5367/chat");
+    let messages = document.querySelector('main')
+
+    socket.onopen = function (e) {
+        console.log("Успешное подключение к серверу чата")
+        // socket.send("Меня зовут Джон");
+    };
+
+    socket.onmessage = function (event) {
+        let m = JSON.parse(event.data)
+        switch (m.type) {
+            case "channel/message":
+                let message = `<div class="message channel"><p><b>Service</b>: ${m.service}</p><p><b>User: ${m.user.nick ?? m.user.login}</b></p><p>${m.message.html ?? m.message.text}</p></div><hr/>`
+                console.log("MESSAGE APPEND", message)
+                messages.insertAdjacentHTML('afterend', message)
+                break
+
+            case "channel/join/success":
+
+                break
+
+            default:
+                break
+
+        }
+
+        console.log(m)
+    };
+
+    socket.onclose = function (event) {
+        if (event.wasClean) {
+            console.log('Соединение с сервером закрыто')
+        } else {
+            console.log('Соединение с сервером прервано')
+        }
+    };
+
+    socket.onerror = function (error) {
+        console.log(error)
+    };
+</script>
+</body>
+</html>

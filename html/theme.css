@@ -1,9 +1,15 @@
 @keyframes slide-left {
-    from {
+    0% {
         left: 110%;
     }
-    to {
+    2% {
         left: 0;
+    }
+    98% {
+        left: 0;
+    }
+    100% {
+        left: 110%;
     }
 }
 
@@ -25,7 +31,8 @@ html, body {
     margin: 10px 10px 10px 30px;
     border-radius: 10px;
     padding-bottom: 5px;
-    animation: slide-left .5s;
+    animation: slide-left 30s;
+    left: 110%;
 }
 
 .message:after {

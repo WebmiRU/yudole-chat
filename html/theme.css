@@ -26,6 +26,11 @@ html, body {
     overflow-x: hidden;
 }
 
+body {
+    /*background-color: #1E1F22;*/
+    background-color: #2B2A33;
+}
+
 .message {
     background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat;
     margin: 10px 10px 10px 30px;

@@ -49,7 +49,7 @@ func Connect() {
 				break
 
 			case "join":
-				if strings.EqualFold(msg.Channel, channel) {
+				if strings.EqualFold(msg.Login, channel) {
 					OutSystem <- messages.System{
 						Service: "twitch",
 						Type:    "channel/join/success",

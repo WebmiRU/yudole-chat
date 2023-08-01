@@ -45,6 +45,10 @@ html, body {
     background-size: contain;
 }
 
+.message.twitch img {
+    height: 28px;
+}
+
 .message.twitch:after {
     background-image: url("img/yuri.png");
 }
@@ -52,6 +56,10 @@ html, body {
 .message.goodgame {
     background: repeating-linear-gradient(to bottom, #080EAB 0px, #080EAB 2px, #1E3EB3 2px, #1E3EB3 4px) center center no-repeat;
     background-size: contain;
+}
+
+.message.goodgame img {
+    height: 36px;
 }
 
 .message.goodgame:after {

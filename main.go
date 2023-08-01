@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 	"yudole-chat/goodgame"
+	"yudole-chat/trovo"
 	"yudole-chat/twitch"
 )
 
@@ -16,8 +17,9 @@ func main() {
 	http.HandleFunc("/chat", accept)
 	http.HandleFunc("/", home)
 
-	go twitch.Connect()
-	go goodgame.Connect()
+	//go twitch.Connect()
+	//go goodgame.Connect()
+	go trovo.Connect()
 
 	go func() {
 		for {
@@ -63,6 +65,32 @@ func main() {
 				}
 				break
 			case system := <-goodgame.OutSystem:
+				fmt.Println("SYSTEM MESSAGE:", system)
+
+				for len(ws_clients) == 0 {
+					time.Sleep(1 * time.Second)
+					continue
+				}
+
+				for _, ws := range ws_clients {
+					ws.WriteJSON(system)
+				}
+				break
+
+			// Чтение сообщений с Trovo-клиента
+			case message := <-trovo.Out:
+				fmt.Println("MESSAGE:", message)
+
+				for len(ws_clients) == 0 {
+					time.Sleep(1 * time.Second)
+					continue
+				}
+
+				for _, ws := range ws_clients {
+					ws.WriteJSON(message)
+				}
+				break
+			case system := <-trovo.OutSystem:
 				fmt.Println("SYSTEM MESSAGE:", system)
 
 				for len(ws_clients) == 0 {

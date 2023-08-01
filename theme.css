@@ -1,3 +1,12 @@
+@keyframes slide-left {
+    from {
+        left: 110%;
+    }
+    to {
+        left: 0;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -8,6 +17,7 @@
 
 html, body {
     background: transparent;
+    overflow-x: hidden;
 }
 
 .message {
@@ -15,6 +25,7 @@ html, body {
     margin: 10px 10px 10px 30px;
     border-radius: 10px;
     padding-bottom: 5px;
+    animation: slide-left .5s;
 }
 
 .message:after {

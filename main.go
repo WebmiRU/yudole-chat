@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"time"
 	"yudole-chat/goodgame"
 	"yudole-chat/twitch"
 )
@@ -26,6 +27,7 @@ func main() {
 				fmt.Println("MESSAGE:", message)
 
 				for len(ws_clients) == 0 {
+					time.Sleep(1 * time.Second)
 					continue
 				}
 
@@ -37,10 +39,12 @@ func main() {
 				fmt.Println("SYSTEM MESSAGE:", system)
 
 				for len(ws_clients) == 0 {
+					time.Sleep(1 * time.Second)
 					continue
 				}
 
 				for _, ws := range ws_clients {
+					time.Sleep(1 * time.Second)
 					ws.WriteJSON(system)
 				}
 				break
@@ -50,6 +54,7 @@ func main() {
 				fmt.Println("MESSAGE:", message)
 
 				for len(ws_clients) == 0 {
+					time.Sleep(1 * time.Second)
 					continue
 				}
 
@@ -61,6 +66,7 @@ func main() {
 				fmt.Println("SYSTEM MESSAGE:", system)
 
 				for len(ws_clients) == 0 {
+					time.Sleep(1 * time.Second)
 					continue
 				}
 

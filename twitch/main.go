@@ -163,8 +163,8 @@ func smiles(message Message) string {
 		smileIdFromTo := strings.Split(smile, ":")
 		smileId := smileIdFromTo[0]
 
-		for _, v := range strings.Split(smileIdFromTo[1], ",") {
-			smileFromTo := strings.Split(v, "-")
+		for _, fromTo := range strings.Split(smileIdFromTo[1], ",") {
+			smileFromTo := strings.Split(fromTo, "-")
 			smileFrom, _ := strconv.Atoi(smileFromTo[0])
 			smileTo, _ := strconv.Atoi(smileFromTo[1])
 			smileText := msg[smileFrom+offset : smileTo+offset+1]

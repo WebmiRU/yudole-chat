@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Yudole chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="theme.css" rel="stylesheet">
 </head>
 <body>
 
@@ -23,7 +27,7 @@
         let m = JSON.parse(event.data)
         switch (m.type) {
             case "channel/message":
-                let message = `<div class="message channel"><p><b>Service</b>: ${m.service}</p><p><b>User: ${m.user.nick ?? m.user.login}</b></p><p>${m.message.html ?? m.message.text}</p></div><hr/>`
+                let message = `<div class="message channel ${m.service}"><p class="user">${m.user.nick ?? m.user.login}</p><p class="content">${m.message.html ?? m.message.text}</p></div>`
                 console.log("MESSAGE APPEND", message)
                 messages.insertAdjacentHTML('afterend', message)
                 break

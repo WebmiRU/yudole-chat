@@ -11,8 +11,6 @@ import (
 func main() {
 	godotenv.Load()
 
-	//http.HandleFunc("/chat/streamer", accept)
-	//http.HandleFunc("/chat/stream", accept)
 	http.HandleFunc("/chat", accept)
 	http.HandleFunc("/", home)
 

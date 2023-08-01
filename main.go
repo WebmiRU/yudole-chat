@@ -15,7 +15,7 @@ func main() {
 	http.HandleFunc("/chat", accept)
 	http.HandleFunc("/", home)
 
-	//go twitch.Connect()
+	go twitch.Connect()
 	go goodgame.Connect()
 
 	go func() {

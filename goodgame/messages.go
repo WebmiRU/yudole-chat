@@ -1,10 +1,10 @@
 package goodgame
 
 type MessageIncomeData struct {
-	ChannelId        string `json:"channel_id"`
-	UserId           int    `json:"user_id"`
-	UserName         string `json:"user_name"`
-	MessageId        string `json:"message_id"`
+	ChannelId string `json:"channel_id"`
+	UserId    int    `json:"user_id"`
+	UserName  string `json:"user_name"`
+	//MessageId        string `json:"message_id"`
 	Timestamp        int    `json:"timestamp"`
 	Text             string `json:"text"`
 	ClientsInChannel int    `json:"clients_in_channel"`

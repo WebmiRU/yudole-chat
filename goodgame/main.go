@@ -1,6 +1,8 @@
 package goodgame
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"io"
 	"log"
@@ -13,8 +15,27 @@ import (
 
 var Out = make(chan messages.Channel, 9999)
 var OutSystem = make(chan messages.System, 9999)
+var smiles = make(map[string]string)
 
 func Connect() {
+	data, _ := os.ReadFile("goodgame_smiles.json")
+	var smilesData []Smile
+	err := json.Unmarshal(data, &smilesData)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, smile := range smilesData {
+		url := smile.Images.Big
+
+		if len(smile.Images.Gif) > 0 {
+			url = smile.Images.Gif
+		}
+
+		smiles[":"+smile.Key+":"] = url
+	}
+
 	url := os.Getenv("GOODGAME_CHAT_URL")
 	channelUrl := os.Getenv("GOODGAME_CHANNEL_URL")
 
@@ -82,7 +103,11 @@ func Connect() {
 			break
 
 		case "success_join":
-			// Успешное подключение к каналу GoodGame
+			OutSystem <- messages.System{
+				Service: "goodgame",
+				Type:    "channel/join/success",
+				Text:    fmt.Sprintf("Успешное подключение к каналу %s", message.Data.ChannelId),
+			}
 			log.Println("SUCCESS JOIN")
 			break
 
@@ -102,11 +127,18 @@ func Connect() {
 				},
 				Message: messages.Message{
 					Text: message.Data.Text,
-					Html: message.Data.Text,
+					Html: smile(message.Data.Text),
 				},
 			}
 			break
 		}
 	}
+}
 
+func smile(text string) string {
+	for k, v := range smiles {
+		text = strings.Replace(text, k, fmt.Sprintf("<img src=\"%s\" alt=\"%s\"/>", v, v), -1)
+	}
+
+	return text
 }

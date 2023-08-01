@@ -33,7 +33,9 @@
                 break
 
             case "channel/join/success":
-
+                let message2 = `<div class="message channel ${m.service}"><p class="user">${m.service}</p><p class="content">${m.text}</p></div>`
+                console.log("MESSAGE APPEND", message2)
+                messages.insertAdjacentHTML('afterend', message2)
                 break
 
             default:

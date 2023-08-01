@@ -75,6 +75,13 @@ html, body {
     background-image: url("img/soviet.png");
 }
 
+.message.system {
+    background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat;
+}
+
+.message.success {
+    background: repeating-linear-gradient(to bottom, #267F00 0px, #267F00 2px, #309900 2px, #309900 4px) center center no-repeat;
+}
 
 .user {
     font-weight: bold;

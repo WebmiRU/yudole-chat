@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"net/http"
+	"yudole-chat/goodgame"
 	"yudole-chat/twitch"
 )
 
@@ -14,11 +15,13 @@ func main() {
 	http.HandleFunc("/chat", accept)
 	http.HandleFunc("/", home)
 
-	go twitch.Connect()
+	//go twitch.Connect()
+	go goodgame.Connect()
 
 	go func() {
 		for {
 			select {
+			// Чтение сообщений с Twitch-клиента
 			case message := <-twitch.Out:
 				fmt.Println("MESSAGE:", message)
 
@@ -31,6 +34,30 @@ func main() {
 				}
 				break
 			case system := <-twitch.OutSystem:
+				fmt.Println("SYSTEM MESSAGE:", system)
+
+				for len(ws_clients) == 0 {
+					continue
+				}
+
+				for _, ws := range ws_clients {
+					ws.WriteJSON(system)
+				}
+				break
+
+			// Чтение сообщений с GoodGame-клиента
+			case message := <-goodgame.Out:
+				fmt.Println("MESSAGE:", message)
+
+				for len(ws_clients) == 0 {
+					continue
+				}
+
+				for _, ws := range ws_clients {
+					ws.WriteJSON(message)
+				}
+				break
+			case system := <-goodgame.OutSystem:
 				fmt.Println("SYSTEM MESSAGE:", system)
 
 				for len(ws_clients) == 0 {

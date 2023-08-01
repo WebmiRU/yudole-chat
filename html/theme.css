@@ -1,6 +1,6 @@
 @keyframes slide-left {
     0% {
-        left: 110%;
+        left: calc(100% + 30px);
     }
     2% {
         left: 0;
@@ -9,7 +9,7 @@
         left: 0;
     }
     100% {
-        left: 110%;
+        left: calc(100% + 30px);
     }
 }
 
@@ -98,8 +98,11 @@ html, body {
     font-weight: bold;
     border-bottom: 3px solid darkgrey;
     padding: 5px 5px 5px 20px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .content {
     padding: 5px 10px;
+    word-wrap: break-word;
 }

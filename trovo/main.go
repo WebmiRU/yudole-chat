@@ -161,5 +161,5 @@ func Connect() {
 }
 
 func smile(message string) string {
-	return regexSmile.ReplaceAllString(message, `<img src="https://img.trovo.live/emotes/$1.png?imageView2/1/w/72/h/72/format/webp&max_age=31536000" alt="$1"/>`)
+	return regexSmile.ReplaceAllString(message, `<img src="https://img.trovo.live/emotes/$1.webp?imageView2/1/w/72/h/72/format/webp&max_age=31536000" alt="$1"/>`)
 }

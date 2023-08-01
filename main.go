@@ -15,11 +15,11 @@ func main() {
 	godotenv.Load()
 
 	http.HandleFunc("/chat", accept)
-	http.HandleFunc("/", home)
+	http.Handle("/", http.FileServer(http.Dir("./html")))
 
 	//go twitch.Connect()
-	//go goodgame.Connect()
-	go trovo.Connect()
+	go goodgame.Connect()
+	//go trovo.Connect()
 
 	go func() {
 		for {

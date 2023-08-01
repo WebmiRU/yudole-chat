@@ -17,9 +17,9 @@ func main() {
 	http.HandleFunc("/chat", accept)
 	http.Handle("/", http.FileServer(http.Dir("./html")))
 
-	//go twitch.Connect()
+	go twitch.Connect()
 	go goodgame.Connect()
-	//go trovo.Connect()
+	go trovo.Connect()
 
 	go func() {
 		for {

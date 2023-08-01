@@ -75,6 +75,10 @@ html, body {
     background-image: url("img/soviet.png");
 }
 
+.message.trovo img {
+    height: 30px;
+}
+
 .message.system {
     background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat;
 }

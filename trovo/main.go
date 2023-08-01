@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 	"yudole-chat/messages"
@@ -22,6 +23,8 @@ const (
 
 var Out = make(chan messages.Channel, 9999)
 var OutSystem = make(chan messages.System, 9999)
+
+var regexSmile = regexp.MustCompile(`:\b(\S+)\b`)
 
 func Connect() {
 	clientId := os.Getenv("TROVO_CLIENT_ID")
@@ -158,5 +161,5 @@ func Connect() {
 }
 
 func smile(message string) string {
-	return message
+	return regexSmile.ReplaceAllString(message, `<img src="https://img.trovo.live/emotes/$1.png?imageView2/1/w/72/h/72/format/webp&max_age=31536000" alt="$1"/>`)
 }

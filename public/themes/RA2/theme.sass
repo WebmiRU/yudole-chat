@@ -1,0 +1,92 @@
+$bg-color: #1E1F22
+
+@keyframes slide-left
+  0%
+    left: calc(100% + 30px)
+
+  2%
+    left: 0
+
+  98%
+    left: 0
+
+  100%
+    left: calc(100% + 30px)
+
+*
+  margin: 0
+  padding: 0
+  font-family: 'Ubuntu', sans-serif
+  color: #FFF
+  position: relative
+
+html, body
+  background: transparent
+  overflow-x: hidden
+
+body
+  background-color: $bg-color
+
+.message
+  background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat
+  margin: 10px 10px 20px 30px
+  border-radius: 10px
+  padding-bottom: 5px
+  animation: slide-left 30s
+  left: 110%
+
+  &:after
+    display: block
+    position: absolute
+    content: ''
+    left: -12px
+    top: -8px
+    background: url('img/other.png') center center no-repeat
+    background-size: contain
+    width: 30px
+    height: 30px
+
+  &.twitch
+    background: repeating-linear-gradient(to bottom, #4E2267 0px, #4E2267 2px, #5E287D 2px, #5E287D 4px) center center no-repeat
+    background-size: contain
+
+    &:after
+      background-image: url("img/yuri.png")
+
+    img
+      height: 28px
+
+  &.goodgame
+    background: repeating-linear-gradient(to bottom, #080EAB 0px, #080EAB 2px, #1E3EB3 2px, #1E3EB3 4px) center center no-repeat
+    background-size: contain
+
+    &:after
+      background-image: url("img/alliance.png")
+
+    img
+      height: 36px
+
+  &.trovo
+    background: repeating-linear-gradient(to bottom, #AB080C 0px, #AB080C 2px, #BD1616 2px, #BD1616 4px) center center no-repeat
+    background-size: contain
+
+    &:after
+      background-image: url("img/soviet.png")
+
+    img
+      height: 30px
+
+  &.system
+    background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat
+
+
+.user
+  font-weight: bold
+  border-bottom: 3px solid darkgrey
+  padding: 5px 5px 5px 20px
+  text-overflow: ellipsis
+  overflow: hidden
+
+.content
+  padding: 5px 10px
+  word-wrap: break-word

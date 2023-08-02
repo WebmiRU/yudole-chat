@@ -15,7 +15,7 @@ func main() {
 	godotenv.Load()
 
 	http.HandleFunc("/chat", accept)
-	http.Handle("/", http.FileServer(http.Dir("./html")))
+	http.Handle("/", http.FileServer(http.Dir("./public")))
 
 	go twitch.Connect()
 	go goodgame.Connect()

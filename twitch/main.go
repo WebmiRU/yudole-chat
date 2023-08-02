@@ -12,8 +12,8 @@ import (
 	"yudole-chat/messages"
 )
 
-var Out = make(chan messages.Channel, 9999)
-var OutSystem = make(chan messages.System, 9999)
+var OutAll = make(chan any, 9999)
+var OutStreamer = make(chan any, 9999)
 
 var re = regexp.MustCompile(`^(?:@([^\r\n ]*) +|())(?::([^\r\n ]+) +|())([^\r\n ]+)(?: +([^:\r\n ]+[^\r\n ]*(?: +[^:\r\n ]+[^\r\n ]*)*)|())?(?: +:([^\r\n]*)| +())?[\r\n]*$`)
 var socket net.Conn
@@ -50,7 +50,7 @@ func Connect() {
 
 			case "join":
 				if strings.EqualFold(msg.Login, channel) {
-					OutSystem <- messages.System{
+					OutStreamer <- messages.System{
 						Service: "twitch",
 						Type:    "channel/join/success",
 						Text:    fmt.Sprintf("Успешное подключение к каналу %s", msg.Channel),
@@ -62,7 +62,7 @@ func Connect() {
 				break
 
 			case "privmsg":
-				Out <- messages.Channel{
+				OutAll <- messages.Channel{
 					Service: "twitch",
 					Type:    "channel/message",
 					User: messages.User{

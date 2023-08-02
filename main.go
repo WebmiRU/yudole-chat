@@ -19,15 +19,15 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
 	go twitch.Connect()
-	//go goodgame.Connect()
-	//go trovo.Connect()
+	go goodgame.Connect()
+	go trovo.Connect()
 
 	// Чтение общих сообщений
 	go func() {
 		for {
 			select {
 			// Twitch
-			case message := <-twitch.Out:
+			case message := <-twitch.OutAll:
 				fmt.Println("MESSAGE:", message)
 
 				for len(wsClientsAll) == 0 {
@@ -41,7 +41,7 @@ func main() {
 				break
 
 			// GoodGame
-			case message := <-goodgame.Out:
+			case message := <-goodgame.OutAll:
 				fmt.Println("MESSAGE:", message)
 
 				for len(wsClientsAll) == 0 {
@@ -55,7 +55,7 @@ func main() {
 				break
 
 			// Trovo
-			case message := <-trovo.Out:
+			case message := <-trovo.OutAll:
 				fmt.Println("MESSAGE:", message)
 
 				for len(wsClientsAll) == 0 {
@@ -71,12 +71,12 @@ func main() {
 		}
 	}()
 
-	// Чтение системных сообщений
+	// Чтение сообщений на стримерском канале
 	go func() {
 		for {
 			select {
 			// Twitch
-			case system := <-twitch.OutSystem:
+			case system := <-twitch.OutStreamer:
 				fmt.Println("SYSTEM MESSAGE:", system)
 
 				for len(wsClientsStreamer) == 0 {
@@ -90,7 +90,7 @@ func main() {
 				break
 
 			// GoodGame
-			case system := <-goodgame.OutSystem:
+			case system := <-goodgame.OutStreamer:
 				fmt.Println("SYSTEM MESSAGE:", system)
 
 				for len(wsClientsStreamer) == 0 {
@@ -104,7 +104,7 @@ func main() {
 				break
 
 			// Trovo
-			case system := <-trovo.OutSystem:
+			case system := <-trovo.OutStreamer:
 				fmt.Println("SYSTEM MESSAGE:", system)
 
 				for len(wsClientsStreamer) == 0 {

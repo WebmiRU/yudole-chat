@@ -14,92 +14,106 @@ import (
 func main() {
 	godotenv.Load()
 
-	http.HandleFunc("/chat", accept)
+	http.HandleFunc("/chat", acceptStreamer)      // Чат стримера, отображает все сообщения
+	http.HandleFunc("/chat/stream", acceptStream) // Чат для стрима, отображает только общие сообщения
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
 	go twitch.Connect()
-	go goodgame.Connect()
-	go trovo.Connect()
+	//go goodgame.Connect()
+	//go trovo.Connect()
 
+	// Чтение общих сообщений
 	go func() {
 		for {
 			select {
-			// Чтение сообщений с Twitch-клиента
+			// Twitch
 			case message := <-twitch.Out:
 				fmt.Println("MESSAGE:", message)
 
-				for len(ws_clients) == 0 {
+				for len(wsClientsAll) == 0 {
 					time.Sleep(1 * time.Second)
 					continue
 				}
 
-				for _, ws := range ws_clients {
+				for _, ws := range wsClientsAll {
 					ws.WriteJSON(message)
 				}
 				break
-			case system := <-twitch.OutSystem:
-				fmt.Println("SYSTEM MESSAGE:", system)
 
-				for len(ws_clients) == 0 {
-					time.Sleep(1 * time.Second)
-					continue
-				}
-
-				for _, ws := range ws_clients {
-					time.Sleep(1 * time.Second)
-					ws.WriteJSON(system)
-				}
-				break
-
-			// Чтение сообщений с GoodGame-клиента
+			// GoodGame
 			case message := <-goodgame.Out:
 				fmt.Println("MESSAGE:", message)
 
-				for len(ws_clients) == 0 {
+				for len(wsClientsAll) == 0 {
 					time.Sleep(1 * time.Second)
 					continue
 				}
 
-				for _, ws := range ws_clients {
-					ws.WriteJSON(message)
-				}
-				break
-			case system := <-goodgame.OutSystem:
-				fmt.Println("SYSTEM MESSAGE:", system)
-
-				for len(ws_clients) == 0 {
-					time.Sleep(1 * time.Second)
-					continue
-				}
-
-				for _, ws := range ws_clients {
-					ws.WriteJSON(system)
+				for _, wsClient := range wsClientsAll {
+					wsClient.WriteJSON(message)
 				}
 				break
 
-			// Чтение сообщений с Trovo-клиента
+			// Trovo
 			case message := <-trovo.Out:
 				fmt.Println("MESSAGE:", message)
 
-				for len(ws_clients) == 0 {
+				for len(wsClientsAll) == 0 {
 					time.Sleep(1 * time.Second)
 					continue
 				}
 
-				for _, ws := range ws_clients {
-					ws.WriteJSON(message)
+				for _, wsClient := range wsClientsAll {
+					wsClient.WriteJSON(message)
 				}
 				break
+			}
+		}
+	}()
+
+	// Чтение системных сообщений
+	go func() {
+		for {
+			select {
+			// Twitch
+			case system := <-twitch.OutSystem:
+				fmt.Println("SYSTEM MESSAGE:", system)
+
+				for len(wsClientsStreamer) == 0 {
+					time.Sleep(1 * time.Second)
+					continue
+				}
+
+				for _, wsClient := range wsClientsStreamer {
+					wsClient.WriteJSON(system)
+				}
+				break
+
+			// GoodGame
+			case system := <-goodgame.OutSystem:
+				fmt.Println("SYSTEM MESSAGE:", system)
+
+				for len(wsClientsStreamer) == 0 {
+					time.Sleep(1 * time.Second)
+					continue
+				}
+
+				for _, wsClient := range wsClientsStreamer {
+					wsClient.WriteJSON(system)
+				}
+				break
+
+			// Trovo
 			case system := <-trovo.OutSystem:
 				fmt.Println("SYSTEM MESSAGE:", system)
 
-				for len(ws_clients) == 0 {
+				for len(wsClientsStreamer) == 0 {
 					time.Sleep(1 * time.Second)
 					continue
 				}
 
-				for _, ws := range ws_clients {
-					ws.WriteJSON(system)
+				for _, wsClient := range wsClientsStreamer {
+					wsClient.WriteJSON(system)
 				}
 				break
 			}

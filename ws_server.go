@@ -8,7 +8,8 @@ import (
 	"yudole-chat/messages"
 )
 
-var ws_clients []*websocket.Conn // Все клиенты
+var wsClientsAll []*websocket.Conn      // Все клиенты
+var wsClientsStreamer []*websocket.Conn // Все клиенты
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  10000,
@@ -18,14 +19,26 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func accept(w http.ResponseWriter, r *http.Request) {
+func acceptStreamer(w http.ResponseWriter, r *http.Request) {
+	accept(w, r, true)
+}
+
+func acceptStream(w http.ResponseWriter, r *http.Request) {
+	accept(w, r, false)
+}
+
+func accept(w http.ResponseWriter, r *http.Request, isStreamer bool) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
 
-	ws_clients = append(ws_clients, ws)
+	wsClientsAll = append(wsClientsAll, ws)
+
+	if isStreamer {
+		wsClientsStreamer = append(wsClientsStreamer, ws)
+	}
 
 	for {
 		var message messages.Channel
@@ -46,15 +59,16 @@ func accept(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	idx := slices.Index(ws_clients, ws)
-	ws_clients = slices.Delete(ws_clients, idx, idx+1)
+	if idx := slices.Index(wsClientsAll, ws); idx >= 0 {
+		wsClientsAll = slices.Delete(wsClientsAll, idx, idx+1)
+	}
+
+	if idx := slices.Index(wsClientsStreamer, ws); idx >= 0 {
+		wsClientsAll = slices.Delete(wsClientsAll, idx, idx+1)
+	}
 
 	err = ws.Close()
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-func home(w http.ResponseWriter, r *http.Request) {
-	//homeTemplate.Execute(w, "ws://"+r.Host+"/accept")
 }

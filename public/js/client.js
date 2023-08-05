@@ -1,9 +1,26 @@
-let socket = new WebSocket("ws://"+location.hostname+":5367/chat");
 let messages = document.querySelector('main')
+let socket = new ReconnectingWebSocket("ws://" + location.hostname + ":5367/chat");
 
-socket.onopen = function (e) {
-    console.log("Успешное подключение к серверу чата")
-};
+// function connect() {
+//     try {
+//         let socket = new WebSocket("ws://" + location.hostname + ":5367/chat");
+//
+//         socket.onopen = function (e) {
+//             console.log("Успешное подключение к серверу чата")
+//         };
+//     } catch {
+//         console.log("SOCKET ERROR");
+//     }
+// }
+
+// setInterval(function () {
+//     try {
+//         socket.send('0');
+//     } catch {
+//         console.log('SERROR');
+//         socket = new WebSocket("ws://" + location.hostname + ":5367/chat");
+//     }
+// }, 3000);
 
 // // Debug function
 // setInterval(function () {
@@ -49,14 +66,30 @@ socket.onmessage = function (event) {
     console.log(m)
 };
 
-socket.onclose = function (event) {
+socket.onclose = (event) => {
     if (event.wasClean) {
         console.log('Соединение с сервером закрыто')
     } else {
         console.log('Соединение с сервером прервано')
     }
+
+    // console.log("RECONNECTING");
+    // console.log("RECONNECTING FUNC");
+    // socket = new WebSocket("ws://localhost:5367/chat");
+    // console.log("RECONNECTING DONE");
+    // // setTimeout(() => {
+    // //     console.log("RECONNECTING FUNC");
+    // //     socket = new WebSocket("ws://localhost:5367/chat");
+    // //     console.log("RECONNECTING DONE");
+    // // }, 1000);
+    // setInterval(() => {
+    //     console.log("RECONNECTING FUNC");
+    //     socket = new WebSocket("ws://localhost:5367/chat");
+    //     console.log("RECONNECTING DONE");
+    // }, 5000);
 };
 
-socket.onerror = function (error) {
-    console.log(error)
+socket.onerror = (error) => {
+    // socket.close();
+    console.log(error);
 };

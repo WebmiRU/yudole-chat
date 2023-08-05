@@ -16,7 +16,7 @@
 
 html, body {
   background: transparent;
-  overflow-x: hidden; }
+  overflow: hidden; }
 
 body {
   background-color: #1E1F22; }

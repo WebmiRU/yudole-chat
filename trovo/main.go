@@ -21,9 +21,7 @@ const (
 	UrlTrovoWS         = "wss://open-chat.trovo.live/chat"
 )
 
-var OutAll = make(chan any, 9999)
-var OutStreamer = make(chan any, 9999)
-
+var Out = make(chan any, 9999)
 var regexSmile = regexp.MustCompile(`:\b(\S+)\b`)
 
 func Connect() {
@@ -101,17 +99,22 @@ func Connect() {
 
 	for {
 		var message Message
-		err := wsClient.ReadJSON(&message)
-
-		if err != nil {
+		if err := wsClient.ReadJSON(&message); err != nil {
 			log.Println(err)
 		}
+
+		f, _ := os.OpenFile("log/trovo.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
+
+		s, _ := json.Marshal(message)
+		f.Write(s)
+		f.WriteString("\n")
+		f.Close()
 
 		fmt.Println(message)
 
 		switch strings.ToLower(message.Type) {
 		case "response":
-			OutStreamer <- messages.System{
+			Out <- messages.System{
 				Service: "trovo",
 				Type:    "channel/join/success",
 				Text:    fmt.Sprintf("Успешное подключение к каналу %s", channel),
@@ -136,7 +139,11 @@ func Connect() {
 
 		case "chat":
 			for _, chat := range message.Data.Chats {
-				OutAll <- messages.Channel{
+				if chat.Type == 5007 {
+					continue
+				}
+
+				Out <- messages.Channel{
 					Service: "trovo",
 					Type:    "channel/message",
 					User: messages.User{

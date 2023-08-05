@@ -13,8 +13,7 @@ import (
 	"yudole-chat/messages"
 )
 
-var OutAll = make(chan any, 9999)
-var OutStreamer = make(chan any, 9999)
+var Out = make(chan any, 9999)
 var smiles = make(map[string]string)
 
 func Connect() {
@@ -103,7 +102,7 @@ func Connect() {
 			break
 
 		case "success_join":
-			OutStreamer <- messages.System{
+			Out <- messages.System{
 				Service: "goodgame",
 				Type:    "channel/join/success",
 				Text:    fmt.Sprintf("Успешное подключение к каналу %s", message.Data.ChannelId),
@@ -116,7 +115,7 @@ func Connect() {
 			break
 
 		case "message":
-			OutAll <- messages.Channel{
+			Out <- messages.Channel{
 				Service: "goodgame",
 				Type:    "channel/message",
 				User: messages.User{

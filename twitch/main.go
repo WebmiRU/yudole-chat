@@ -9,11 +9,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 	"yudole-chat/messages"
 )
 
-var OutAll = make(chan any, 9999)
-var OutStreamer = make(chan any, 9999)
+var Out = make(chan any, 9999)
 
 var re = regexp.MustCompile(`^(?:@([^\r\n ]*) +|())(?::([^\r\n ]+) +|())([^\r\n ]+)(?: +([^:\r\n ]+[^\r\n ]*(?: +[^:\r\n ]+[^\r\n ]*)*)|())?(?: +:([^\r\n]*)| +())?[\r\n]*$`)
 var socket net.Conn
@@ -26,21 +26,36 @@ func Connect() {
 	channel := os.Getenv("TWITCH_CHANNEL")
 	var err error
 
-	socket, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port))
+	log.Println("Connecting to Twitch")
+
+	if socket, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port)); err != nil {
+		log.Println("IRC CONNECTION ERROR: ", err)
+		// @TODO Возможно тут стоить сделать задержку и переподключение
+		//log.Printf("Reconnecting to Twitch after %d seconds", reconnectionDelay)
+	}
 
 	if err != nil {
-		log.Fatal("IRC CONNECTION ERROR: ", err)
+		reconnect()
+		return
 	}
+
+	//defer socket.Close()
+	socket.SetReadDeadline(time.Now().Add(time.Second * 20))
 
 	fmt.Fprintln(socket, "CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership")
 	fmt.Fprintln(socket, fmt.Sprintf("PASS %s", password))
 	fmt.Fprintln(socket, fmt.Sprintf("NICK %s", login))
 
+	var isPingSend bool
+
 	for {
 		scanner := bufio.NewScanner(bufio.NewReader(socket))
+		socket.SetReadDeadline(time.Now().Add(time.Second * 20))
 		//scanner.Split(bufio.ScanLines)
 
 		for scanner.Scan() {
+			isPingSend = false
+			socket.SetReadDeadline(time.Now().Add(time.Second * 20))
 			msg := message(scanner.Text())
 
 			switch strings.ToLower(msg.Type) {
@@ -50,7 +65,7 @@ func Connect() {
 
 			case "join":
 				if strings.EqualFold(msg.Login, channel) {
-					OutStreamer <- messages.System{
+					Out <- messages.System{
 						Service: "twitch",
 						Type:    "channel/join/success",
 						Text:    fmt.Sprintf("Успешное подключение к каналу %s", msg.Channel),
@@ -62,7 +77,7 @@ func Connect() {
 				break
 
 			case "privmsg":
-				OutAll <- messages.Channel{
+				Out <- messages.Channel{
 					Service: "twitch",
 					Type:    "channel/message",
 					User: messages.User{
@@ -85,6 +100,9 @@ func Connect() {
 				}
 				break
 
+			case "pong":
+				break
+
 			case "roomstate":
 				break
 
@@ -102,7 +120,24 @@ func Connect() {
 				log.Println("UNKNOWN IRC MESSAGE TYPE: ", msg.Type)
 			}
 		}
+
+		if err == nil && !isPingSend {
+			isPingSend = true
+			fmt.Fprintln(socket, "PING :tmi.twitch.tv")
+			continue
+		}
+
+		socket.Close()
+		reconnect()
+
+		return
 	}
+}
+
+func reconnect() {
+	log.Println("Service TWITCH connection is broken, reconnect after 5 seconds")
+	time.Sleep(time.Second * 5)
+	go Connect()
 }
 
 func tags(tags string) map[string]string {
@@ -168,7 +203,7 @@ func smiles(message Message) string {
 			smileFrom, _ := strconv.Atoi(smileFromTo[0])
 			smileTo, _ := strconv.Atoi(smileFromTo[1])
 			smileText := msg[smileFrom+offset : smileTo+offset+1]
-			smileReplacer := []rune(fmt.Sprintf("<img class=\"smile smile-twitch\" src=\"https://static-cdn.jtvnw.net/emoticons/v2/%s/default/dark/1.0\" alt=\"%s\"/>", smileId, string(smileText)))
+			smileReplacer := []rune(fmt.Sprintf("<img class=\"smile twitch\" src=\"https://static-cdn.jtvnw.net/emoticons/v2/%s/default/dark/1.0\" alt=\"%s\"/>", smileId, string(smileText)))
 			msg = append(msg[:smileFrom+offset], append(smileReplacer, msg[smileTo+1+offset:]...)...)
 			offset += smileFrom - smileTo + len(smileReplacer) - 1
 		}

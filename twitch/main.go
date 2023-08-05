@@ -13,6 +13,8 @@ import (
 	"yudole-chat/messages"
 )
 
+const socketReadTimeout = 30
+
 var Out = make(chan any, 9999)
 
 var re = regexp.MustCompile(`^(?:@([^\r\n ]*) +|())(?::([^\r\n ]+) +|())([^\r\n ]+)(?: +([^:\r\n ]+[^\r\n ]*(?: +[^:\r\n ]+[^\r\n ]*)*)|())?(?: +:([^\r\n]*)| +())?[\r\n]*$`)
@@ -40,7 +42,7 @@ func Connect() {
 	}
 
 	//defer socket.Close()
-	socket.SetReadDeadline(time.Now().Add(time.Second * 20))
+	socket.SetReadDeadline(time.Now().Add(time.Second * socketReadTimeout))
 
 	fmt.Fprintln(socket, "CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership")
 	fmt.Fprintln(socket, fmt.Sprintf("PASS %s", password))
@@ -50,12 +52,12 @@ func Connect() {
 
 	for {
 		scanner := bufio.NewScanner(bufio.NewReader(socket))
-		socket.SetReadDeadline(time.Now().Add(time.Second * 20))
+		socket.SetReadDeadline(time.Now().Add(time.Second * socketReadTimeout))
 		//scanner.Split(bufio.ScanLines)
 
 		for scanner.Scan() {
 			isPingSend = false
-			socket.SetReadDeadline(time.Now().Add(time.Second * 20))
+			socket.SetReadDeadline(time.Now().Add(time.Second * socketReadTimeout))
 			msg := message(scanner.Text())
 
 			switch strings.ToLower(msg.Type) {

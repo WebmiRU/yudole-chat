@@ -18,9 +18,8 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
 	go twitch.Connect()
-	//go twitch.Ping()
-	//go goodgame.Connect()
-	//go trovo.Connect()
+	go goodgame.Connect()
+	go trovo.Connect()
 
 	// Чтение общих сообщений
 	go func() {

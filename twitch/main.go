@@ -13,7 +13,11 @@ import (
 	"yudole-chat/messages"
 )
 
-const socketReadTimeout = 30
+const (
+	SocketPing      = 20
+	SocketWait      = 30
+	SocketReconnect = 10
+)
 
 var Out = make(chan any, 9999)
 
@@ -31,111 +35,112 @@ func Connect() {
 	log.Println("Connecting to Twitch")
 
 	if socket, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port)); err != nil {
-		log.Println("IRC CONNECTION ERROR: ", err)
-		// @TODO Возможно тут стоить сделать задержку и переподключение
-		//log.Printf("Reconnecting to Twitch after %d seconds", reconnectionDelay)
+		log.Println("Service TWITCH connection error: ", err)
 	}
 
-	defer reconnect()
-	defer socket.Close()
-
 	if err != nil {
-		reconnect()
 		return
 	}
 
-	//defer socket.Close()
-	socket.SetReadDeadline(time.Now().Add(time.Second * socketReadTimeout))
+	defer socket.Close()
+	defer Connect()
+
+	socket.SetReadDeadline(time.Now().Add(time.Second * SocketWait))
 
 	fmt.Fprintln(socket, "CAP REQ :twitch.tv/commands twitch.tv/tags twitch.tv/membership")
 	fmt.Fprintln(socket, fmt.Sprintf("PASS %s", password))
 	fmt.Fprintln(socket, fmt.Sprintf("NICK %s", login))
 
-	var isPingSend bool
+	pingSend := true
+	lastDataReceived := time.Now()
 
-	for {
-		scanner := bufio.NewScanner(bufio.NewReader(socket))
-		socket.SetReadDeadline(time.Now().Add(time.Second * socketReadTimeout))
-		//scanner.Split(bufio.ScanLines)
+	go func(ping *bool) {
+		for *ping {
+			time.Sleep(time.Second) // Пауза на 1 секунду
 
-		for scanner.Scan() {
-			isPingSend = false
-			socket.SetReadDeadline(time.Now().Add(time.Second * socketReadTimeout))
-			msg := message(scanner.Text())
-
-			switch strings.ToLower(msg.Type) {
-			case "001": // Welcome message
-				fmt.Fprintln(socket, fmt.Sprintf("JOIN #%s", channel))
-				break
-
-			case "join":
-				if strings.EqualFold(msg.Login, channel) {
-					Out <- messages.System{
-						Service: "twitch",
-						Type:    "channel/join/success",
-						Text:    fmt.Sprintf("Успешное подключение к каналу %s", msg.Channel),
-					}
-				}
-				break
-
-			case "part":
-				break
-
-			case "privmsg":
-				Out <- messages.Channel{
-					Service: "twitch",
-					Type:    "channel/message",
-					User: messages.User{
-						Login:     msg.Login,
-						Nick:      msg.Nick,
-						AvatarUrl: "",
-						Color:     "",
-					},
-					Message: messages.Message{
-						Text: msg.Text,
-						Html: smiles(msg),
-					},
-				}
-				break
-
-			case "ping":
-				_, err := fmt.Fprintln(socket, "PONG :"+msg.Text)
-				if err != nil {
-					log.Fatal("IRC CONNECTION ERROR", err)
-				}
-				break
-
-			case "pong":
-				break
-
-			case "roomstate":
-				break
-
-			case "userstate":
-				break
-
-			case "globaluserstate":
-				break
-
-			case "002", "003", "004", "353", "366", "372", "375", "376", "cap":
-				// Ignore this message types
-				break
-
-			default:
-				log.Println("UNKNOWN IRC MESSAGE TYPE: ", msg.Type)
+			if lastDataReceived.Add(SocketPing * time.Second).Before(time.Now()) { // Если данные не были получены более чем N секунд
+				lastDataReceived = time.Now()
+				fmt.Fprintln(socket, "PING :tmi.twitch.tv")
 			}
 		}
+	}(&pingSend)
 
-		if err == nil && !isPingSend {
-			isPingSend = true
-			fmt.Fprintln(socket, "PING :tmi.twitch.tv")
-			continue
+	scanner := bufio.NewScanner(bufio.NewReader(socket))
+	socket.SetReadDeadline(time.Now().Add(time.Second * SocketWait))
+	//scanner.Split(bufio.ScanLines)
+
+	for scanner.Scan() {
+		lastDataReceived = time.Now()
+		socket.SetReadDeadline(time.Now().Add(time.Second * SocketWait))
+		msg := message(scanner.Text())
+
+		switch strings.ToLower(msg.Type) {
+		case "001": // Welcome message
+			fmt.Fprintln(socket, fmt.Sprintf("JOIN #%s", channel))
+			break
+
+		case "join":
+			if strings.EqualFold(msg.Login, channel) {
+				Out <- messages.System{
+					Service: "twitch",
+					Type:    "channel/join/success",
+					Text:    fmt.Sprintf("Успешное подключение к каналу %s", msg.Channel),
+				}
+			}
+			break
+
+		case "part":
+			break
+
+		case "privmsg":
+			Out <- messages.Channel{
+				Service: "twitch",
+				Type:    "channel/message",
+				User: messages.User{
+					Login:     msg.Login,
+					Nick:      msg.Nick,
+					AvatarUrl: "",
+					Color:     "",
+				},
+				Message: messages.Message{
+					Text: msg.Text,
+					Html: smiles(msg),
+				},
+			}
+			break
+
+		case "ping":
+			_, err := fmt.Fprintln(socket, "PONG :"+msg.Text)
+			if err != nil {
+				log.Fatal("IRC CONNECTION ERROR", err)
+			}
+			break
+
+		case "pong":
+			break
+
+		case "roomstate":
+			break
+
+		case "userstate":
+			break
+
+		case "globaluserstate":
+			break
+
+		case "002", "003", "004", "353", "366", "372", "375", "376", "cap":
+			// Ignore this message types
+			break
+
+		default:
+			log.Println("UNKNOWN IRC MESSAGE TYPE: ", msg.Type)
 		}
-
-		break
 	}
 
-	return
+	pingSend = false
+
+	log.Printf("Service TWITCH connection is broken. Reconnect after %d seconds", SocketReconnect)
+	time.Sleep(SocketReconnect * time.Second)
 }
 
 func reconnect() {

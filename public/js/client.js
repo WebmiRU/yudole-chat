@@ -26,7 +26,7 @@ let socket = new ReconnectingWebSocket("ws://" + location.hostname + ":5367/chat
 // setInterval(function () {
 //     let m = {
 //         "service": "twitch",
-//         "type": "channel/message",
+//         "type": "message/channel",
 //         "user": {
 //             "login": "ewolf34",
 //             "nick": "EWolf34",
@@ -46,7 +46,7 @@ let socket = new ReconnectingWebSocket("ws://" + location.hostname + ":5367/chat
 socket.onmessage = function (event) {
     let m = JSON.parse(event.data)
     switch (m.type) {
-        case "channel/message":
+        case "message/channel":
             let message = `<div class="message channel ${m.service}"><p class="user">${m.user.nick ?? m.user.login}</p><p class="content">${m.message.html ?? m.message.text}</p></div>`
             console.log("MESSAGE APPEND", message)
             messages.insertAdjacentHTML('afterend', message)

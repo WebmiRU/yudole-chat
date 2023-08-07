@@ -95,7 +95,7 @@ func Connect() {
 		case "privmsg":
 			Out <- messages.Channel{
 				Service: "twitch",
-				Type:    "channel/message",
+				Type:    "message/channel",
 				User: messages.User{
 					Login:     msg.Login,
 					Nick:      msg.Nick,

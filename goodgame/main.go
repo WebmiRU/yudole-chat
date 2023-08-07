@@ -124,7 +124,7 @@ func Connect() {
 		case "message":
 			Out <- messages.Channel{
 				Service: "goodgame",
-				Type:    "channel/message",
+				Type:    "message/channel",
 				User: messages.User{
 					Login:     message.Data.UserName,
 					Nick:      message.Data.UserName,

@@ -155,7 +155,7 @@ func Connect() {
 
 				Out <- messages.Channel{
 					Service: "trovo",
-					Type:    "channel/message",
+					Type:    "message/channel",
 					User: messages.User{
 						Login:     chat.UserName,
 						Nick:      chat.UserName,

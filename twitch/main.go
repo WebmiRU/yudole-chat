@@ -36,8 +36,8 @@ func Connect() {
 		//log.Printf("Reconnecting to Twitch after %d seconds", reconnectionDelay)
 	}
 
-	defer socket.Close()
 	defer reconnect()
+	defer socket.Close()
 
 	if err != nil {
 		reconnect()

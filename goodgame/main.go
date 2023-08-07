@@ -79,7 +79,7 @@ func Connect() {
 			break
 		}
 
-		log.Println(message)
+		//log.Println(message)
 
 		switch strings.ToLower(message.Type) {
 		case "welcome":

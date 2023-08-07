@@ -19,6 +19,10 @@ const (
 	UrlGetUsers        = "https://open-api.trovo.live/openplatform/getusers"
 	UrlGetChannelToken = "https://open-api.trovo.live/openplatform/chat/channel-token/"
 	UrlTrovoWS         = "wss://open-chat.trovo.live/chat"
+	//UrlTrovoWS   = "ws://fedora:8080"
+	SocketPing      = 20
+	SocketWait      = 30
+	SocketReconnect = 10
 )
 
 var Out = make(chan any, 9999)
@@ -76,13 +80,15 @@ func Connect() {
 	err = json.Unmarshal(body, &respToken)
 
 	if err != nil {
-		log.Fatalln("Error response from Trovo while getting channel token", string(body))
+		log.Println("Error response from Trovo while getting channel token", string(body))
+		return
 	}
 
 	wsClient, _, err := websocket.DefaultDialer.Dial(UrlTrovoWS, nil)
 
 	if err != nil {
-		log.Fatal("Trovo chat server connection error", err)
+		log.Println("Trovo chat server connection error", err)
+		return
 	}
 
 	err = wsClient.WriteJSON(MessageAuth{
@@ -94,26 +100,42 @@ func Connect() {
 	})
 
 	if err != nil {
-		log.Fatal("Trovo chat server send message error", err)
+		log.Println("Service TROVO chat server send message error:", err)
+		return
 	}
 
 	defer Connect()
 	defer wsClient.Close()
 
-	for {
-		var message Message
-		if err := wsClient.ReadJSON(&message); err != nil {
-			log.Println(err)
+	pingSend := true
+
+	go func(ping *bool) {
+		log.Println("TROVO START PING")
+		for *ping {
+			time.Sleep(SocketPing * time.Second)
+
+			err := wsClient.WriteJSON(MessagePing{
+				Type:  "PING",
+				Nonce: string(time.Now().Unix()),
+			})
+
+			if err != nil {
+				log.Fatalln("Error Trovo send PING command", err)
+			}
 		}
 
-		f, _ := os.OpenFile("log/trovo.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0777)
+		log.Println("TROVO STOP PING")
+	}(&pingSend)
 
-		s, _ := json.Marshal(message)
-		f.Write(s)
-		f.WriteString("\n")
-		f.Close()
+	for {
+		wsClient.SetReadDeadline(time.Now().Add(SocketWait * time.Second))
 
-		fmt.Println(message)
+		var message Message
+		if err := wsClient.ReadJSON(&message); err != nil {
+			log.Println("Service TROVO error:", err)
+			pingSend = false
+			break
+		}
 
 		switch strings.ToLower(message.Type) {
 		case "response":
@@ -123,21 +145,6 @@ func Connect() {
 				Text:    fmt.Sprintf("Успешное подключение к каналу %s", channel),
 			}
 			log.Println("SUCCESS JOIN (TROVO)")
-
-			go func() {
-				for {
-					time.Sleep(20 * time.Second)
-
-					err := wsClient.WriteJSON(MessagePing{
-						Type:  "PING",
-						Nonce: string(time.Now().Unix()),
-					})
-
-					if err != nil {
-						log.Fatalln("Error Trovo send PING command", err)
-					}
-				}
-			}()
 			break
 
 		case "chat":
@@ -164,9 +171,12 @@ func Connect() {
 			break
 
 		case "pong":
-			log.Println("Trovo PONG message")
+			break
 		}
 	}
+
+	log.Printf("Service TROVO connection is broken. Reconnect after %d seconds", SocketReconnect)
+	time.Sleep(SocketReconnect * time.Second)
 }
 
 func smile(message string) string {

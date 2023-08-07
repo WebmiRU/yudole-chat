@@ -19,10 +19,9 @@ const (
 	UrlGetUsers        = "https://open-api.trovo.live/openplatform/getusers"
 	UrlGetChannelToken = "https://open-api.trovo.live/openplatform/chat/channel-token/"
 	UrlTrovoWS         = "wss://open-chat.trovo.live/chat"
-	//UrlTrovoWS   = "ws://fedora:8080"
-	SocketPing      = 20
-	SocketWait      = 30
-	SocketReconnect = 10
+	SocketPing         = 20
+	SocketWait         = 30
+	SocketReconnect    = 10
 )
 
 var Out = make(chan any, 9999)

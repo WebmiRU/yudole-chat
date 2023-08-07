@@ -21,9 +21,6 @@ var re = regexp.MustCompile(`^(?:@([^\r\n ]*) +|())(?::([^\r\n ]+) +|())([^\r\n 
 var socket net.Conn
 
 func Connect() {
-	defer reconnect()
-	defer socket.Close()
-
 	host := os.Getenv("TWITCH_HOST")
 	port := os.Getenv("TWITCH_PORT")
 	login := os.Getenv("TWITCH_LOGIN")
@@ -38,6 +35,9 @@ func Connect() {
 		// @TODO Возможно тут стоить сделать задержку и переподключение
 		//log.Printf("Reconnecting to Twitch after %d seconds", reconnectionDelay)
 	}
+
+	defer socket.Close()
+	defer reconnect()
 
 	if err != nil {
 		reconnect()

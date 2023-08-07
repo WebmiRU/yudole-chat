@@ -97,6 +97,9 @@ func Connect() {
 		log.Fatal("Trovo chat server send message error", err)
 	}
 
+	defer Connect()
+	defer wsClient.Close()
+
 	for {
 		var message Message
 		if err := wsClient.ReadJSON(&message); err != nil {
@@ -161,7 +164,7 @@ func Connect() {
 			break
 
 		case "pong":
-			fmt.Println("Trovo PONG message")
+			log.Println("Trovo PONG message")
 		}
 	}
 }

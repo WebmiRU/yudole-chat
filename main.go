@@ -17,9 +17,9 @@ func main() {
 	http.HandleFunc("/chat", accept) // Чат стримера, отображает все сообщения
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
-	go twitch.Connect()
+	//go twitch.Connect()
 	go goodgame.Connect()
-	go trovo.Connect()
+	//go trovo.Connect()
 
 	// Чтение общих сообщений
 	go func() {

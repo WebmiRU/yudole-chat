@@ -21,6 +21,9 @@ var re = regexp.MustCompile(`^(?:@([^\r\n ]*) +|())(?::([^\r\n ]+) +|())([^\r\n 
 var socket net.Conn
 
 func Connect() {
+	defer reconnect()
+	defer socket.Close()
+
 	host := os.Getenv("TWITCH_HOST")
 	port := os.Getenv("TWITCH_PORT")
 	login := os.Getenv("TWITCH_LOGIN")
@@ -129,11 +132,10 @@ func Connect() {
 			continue
 		}
 
-		socket.Close()
-		reconnect()
-
-		return
+		break
 	}
+
+	return
 }
 
 func reconnect() {

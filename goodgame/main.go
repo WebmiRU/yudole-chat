@@ -10,13 +10,18 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 	"yudole-chat/messages"
 )
+
+const socketReadTimeout = 30
 
 var Out = make(chan any, 9999)
 var smiles = make(map[string]string)
 
 func Connect() {
+	log.Println("Connecting to GoodGame service...")
+
 	data, _ := os.ReadFile("goodgame_smiles.json")
 	var smilesData []Smile
 	err := json.Unmarshal(data, &smilesData)
@@ -47,13 +52,9 @@ func Connect() {
 	body, _ := io.ReadAll(resp.Body)
 
 	r := regexp.MustCompile(`"channel_id"\s?:\s?"(\d+)"`).FindSubmatch(body)
-	//channelId, err := strconv.Atoi(string(r[1]))
-	//if err != nil {
-	//	log.Fatal("Error while getting GoodGame ChannelID value")
-	//}
 
 	if len(r) < 2 {
-		log.Fatal("Error while getting GoodGame ChannelID value")
+		log.Fatal("Service GoodGame error while getting ChannelID value")
 	}
 
 	channelId := string(r[1])
@@ -61,15 +62,21 @@ func Connect() {
 	client, _, err := websocket.DefaultDialer.Dial(url, nil)
 
 	if err != nil {
-		log.Fatal("Goodgame chat server connection error")
+		log.Println("Goodgame chat server connection error:", err)
+		return
 	}
 
+	defer Connect()
+	defer client.Close()
+
 	for {
+		client.SetReadDeadline(time.Now().Add(time.Second * socketReadTimeout))
 		var message MessageIncome
 		err := client.ReadJSON(&message)
 
 		if err != nil {
-			log.Println(err)
+			log.Println("Service GoodGame error:", err)
+			break
 		}
 
 		log.Println(message)
@@ -132,6 +139,11 @@ func Connect() {
 			break
 		}
 	}
+
+	// @TODO Send reconnect message
+
+	log.Println("Service GoodGame connection is broken, reconnect after 5 seconds")
+	time.Sleep(time.Second * 5)
 }
 
 func smile(text string) string {

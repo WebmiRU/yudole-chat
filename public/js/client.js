@@ -65,11 +65,11 @@ const msg2 = {"type": "user/join/channel", "service": "twitch", "text": "", "use
 const msg3 = {"type": "success/join/channel", "service": "trovo", "user": {"login": "", "nick": "", "avatar_url": "", "color": ""}, "channel": "EWolf34"};
 const msg4 = {"service": "twitch", "type": "message/channel", "user": {"login": "ewolf34", "nick": "EWolf34", "avatar_url": "", "color": ""}, "message": {"text": "432423432", "html": "432423432"}};
 
-setInterval(() => {
-    // message(msg4)
-    message(msg3)
-    // message(msg21)
-}, 2000);
+// setInterval(() => {
+//     // message(msg4)
+//     message(msg3)
+//     // message(msg21)
+// }, 2000);
 
 socket.onmessage = function (event) {
     console.log(JSON.parse(event.data))

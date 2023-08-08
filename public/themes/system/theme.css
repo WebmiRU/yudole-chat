@@ -4,36 +4,39 @@
   font-family: "Ubuntu", sans-serif;
   color: #FFF;
   position: relative;
-  font-size: 16px; }
+  font-size: 16px;
+}
+
+audio {
+  display: none;
+}
 
 html, body {
   background: transparent;
-  overflow-x: hidden; }
+  overflow-x: hidden;
+}
 
 body {
-  background-color: #2B2D30; }
+  background-color: #2B2D30;
+}
 
 .message {
   background: #1E1F22;
-  margin: 10px; }
-  .message.twitch .user {
-    background-image: url("img/twitch.png"); }
-  .message.goodgame .user {
-    background-image: url("img/goodgame.png"); }
-  .message.trovo .user {
-    background-image: url("img/trovo.png"); }
-  .message.youtube .user {
-    background-image: url("img/youtube.png"); }
-  .message.system {
-    background: #000; }
-  .message.success {
-    background: #267F00; }
-  .message.info {
-    background: #4800FF; }
-  .message.error {
-    background: #7F0037; }
-
-.user {
+  margin: 10px;
+}
+.message.twitch .user {
+  background-image: url("img/twitch.png");
+}
+.message.goodgame .user {
+  background-image: url("img/goodgame.png");
+}
+.message.trovo .user {
+  background-image: url("img/trovo.png");
+}
+.message.youtube .user {
+  background-image: url("img/youtube.png");
+}
+.message .user {
   font-weight: bold;
   border-bottom: 3px solid #0094FF;
   margin: 10px;
@@ -42,12 +45,54 @@ body {
   overflow: hidden;
   background: center left no-repeat;
   background-size: 20px 20px;
-  line-height: 40px; }
-
-.content {
+  line-height: 40px;
+}
+.message .content {
   padding: 0 10px 10px;
-  word-wrap: break-word; }
-  .content img {
-    height: 18px; }
+  word-wrap: break-word;
+}
+.message img {
+  height: 18px;
+}
+
+.system {
+  background: #000;
+}
+
+.info, .error, .success {
+  margin: 10px;
+  padding: 10px;
+  background: left 10px center no-repeat #000;
+  background-size: auto 20px;
+}
+.info u, .error u, .success u {
+  color: yellow;
+}
+.info b, .error b, .success b {
+  color: aquamarine;
+}
+.info p, .error p, .success p {
+  padding: 5px 5px 5px 30px;
+}
+.info.twitch, .twitch.error, .twitch.success {
+  background-image: url("img/twitch.png");
+}
+.info.goodgame, .goodgame.error, .goodgame.success {
+  background-image: url("img/goodgame.png");
+}
+.info.trovo, .trovo.error, .trovo.success {
+  background-image: url("img/trovo.png");
+}
+.info.youtube, .youtube.error, .youtube.success {
+  background-image: url("img/youtube.png");
+}
+
+.success {
+  background-color: #002B04;
+}
+
+.error {
+  background-color: #7F0037;
+}
 
 /*# sourceMappingURL=theme.css.map */

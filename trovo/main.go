@@ -25,7 +25,7 @@ const (
 )
 
 var Out = make(chan any, 9999)
-var regexSmile = regexp.MustCompile(`:\b(\S+)\b`)
+var regexSmile = regexp.MustCompile(`:\b(\S+)\b!?`)
 
 func Connect() {
 	clientId := os.Getenv("TROVO_CLIENT_ID")
@@ -101,6 +101,11 @@ func Connect() {
 	if err != nil {
 		log.Println("Service TROVO chat server send message error:", err)
 		return
+	} else {
+		Out <- messages.System{
+			Type:    "success/connection/server",
+			Service: "trovo",
+		}
 	}
 
 	defer Connect()
@@ -139,9 +144,10 @@ func Connect() {
 		switch strings.ToLower(message.Type) {
 		case "response":
 			Out <- messages.System{
+				Type:    "success/join/channel",
 				Service: "trovo",
-				Type:    "channel/join/success",
-				Text:    fmt.Sprintf("Успешное подключение к каналу %s", channel),
+				User:    messages.User{},
+				Channel: channel,
 			}
 			log.Println("SUCCESS JOIN (TROVO)")
 			break
@@ -156,10 +162,8 @@ func Connect() {
 					Service: "trovo",
 					Type:    "message/channel",
 					User: messages.User{
-						Login:     chat.UserName,
-						Nick:      chat.UserName,
-						AvatarUrl: "",
-						Color:     "",
+						Login: chat.UserName,
+						Nick:  chat.UserName,
 					},
 					Message: messages.Message{
 						Text: chat.Content,

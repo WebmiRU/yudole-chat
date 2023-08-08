@@ -1,7 +1,9 @@
 package messages
 
 type System struct {
-	Service string `json:"service"`
 	Type    string `json:"type"`
-	Text    string `json:"text"`
+	Service string `json:"service"`
+	User    User   `json:"user"`
+	Channel string `json:"channel"`
+	//Value   string `json:"value"`
 }

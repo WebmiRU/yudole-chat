@@ -32,10 +32,15 @@ func Connect() {
 	channel := os.Getenv("TWITCH_CHANNEL")
 	var err error
 
-	log.Println("Connecting to Twitch")
+	log.Println("Service TWITCH. Connecting to chat server")
 
 	if socket, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port)); err != nil {
 		log.Println("Service TWITCH connection error: ", err)
+	} else {
+		Out <- messages.System{
+			Type:    "success/connection/server",
+			Service: "twitch",
+		}
 	}
 
 	if err != nil {
@@ -69,6 +74,7 @@ func Connect() {
 	socket.SetReadDeadline(time.Now().Add(time.Second * SocketWait))
 	//scanner.Split(bufio.ScanLines)
 
+mainLoop:
 	for scanner.Scan() {
 		lastDataReceived = time.Now()
 		socket.SetReadDeadline(time.Now().Add(time.Second * SocketWait))
@@ -80,22 +86,45 @@ func Connect() {
 			break
 
 		case "join":
-			if strings.EqualFold(msg.Login, channel) {
+			if strings.EqualFold(msg.Login, login) {
 				Out <- messages.System{
+					Type:    "success/join/channel",
 					Service: "twitch",
-					Type:    "channel/join/success",
-					Text:    fmt.Sprintf("Успешное подключение к каналу %s", msg.Channel),
+					Channel: msg.Channel,
+				}
+			} else {
+				Out <- messages.System{
+					Type:    "user/join/channel",
+					Service: "twitch",
+					User: messages.User{
+						Login:     msg.Login,
+						Nick:      "",
+						AvatarUrl: "",
+						Color:     "",
+					},
+					Channel: msg.Channel,
 				}
 			}
 			break
 
 		case "part":
+			Out <- messages.System{
+				Type:    "user/leave/channel",
+				Service: "twitch",
+				User: messages.User{
+					Login:     msg.Login,
+					Nick:      "",
+					AvatarUrl: "",
+					Color:     "",
+				},
+				Channel: msg.Channel,
+			}
 			break
 
 		case "privmsg":
 			Out <- messages.Channel{
-				Service: "twitch",
 				Type:    "message/channel",
+				Service: "twitch",
 				User: messages.User{
 					Login:     msg.Login,
 					Nick:      msg.Nick,
@@ -112,7 +141,8 @@ func Connect() {
 		case "ping":
 			_, err := fmt.Fprintln(socket, "PONG :"+msg.Text)
 			if err != nil {
-				log.Fatal("IRC CONNECTION ERROR", err)
+				log.Println("Service TWITCH connection error:", err)
+				break mainLoop
 			}
 			break
 
@@ -133,11 +163,16 @@ func Connect() {
 			break
 
 		default:
-			log.Println("UNKNOWN IRC MESSAGE TYPE: ", msg.Type)
+			log.Println("Service TWITCH unknown irc message type:", msg.Type)
 		}
 	}
 
 	pingSend = false
+
+	Out <- messages.System{
+		Type:    "user/leave/channel",
+		Service: "twitch",
+	}
 
 	log.Printf("Service TWITCH connection is broken. Reconnect after %d seconds", SocketReconnect)
 	time.Sleep(SocketReconnect * time.Second)
@@ -216,7 +251,6 @@ func smiles(message Message) string {
 			msg = append(msg[:smileFrom+offset], append(smileReplacer, msg[smileTo+1+offset:]...)...)
 			offset += smileFrom - smileTo + len(smileReplacer) - 1
 		}
-
 	}
 
 	return string(msg)

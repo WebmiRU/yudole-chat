@@ -64,6 +64,11 @@ func Connect() {
 	if err != nil {
 		log.Println("Goodgame chat server connection error:", err)
 		return
+	} else {
+		Out <- messages.System{
+			Type:    "success/connection/server",
+			Service: "goodgame",
+		}
 	}
 
 	defer Connect()
@@ -110,9 +115,13 @@ func Connect() {
 
 		case "success_join":
 			Out <- messages.System{
+				Type:    "success/join/channel",
 				Service: "goodgame",
-				Type:    "channel/join/success",
-				Text:    fmt.Sprintf("Успешное подключение к каналу %s", message.Data.ChannelId),
+				User: messages.User{
+					Login: message.Data.UserName,
+					Nick:  message.Data.UserName,
+				},
+				Channel: message.Data.ChannelId,
 			}
 			log.Println("SUCCESS JOIN")
 			break

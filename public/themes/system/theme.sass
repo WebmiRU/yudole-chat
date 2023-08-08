@@ -2,8 +2,8 @@ $bg-color: #2B2D30
 $message-bg-color: #1E1F22
 $text-color: #FFF
 $line-color: #0094FF
-$success-color: #267F00
-$info-color: #4800FF
+$success-color: #002B04
+$info-color: #000
 $error-color: #7F0037
 
 *
@@ -13,6 +13,9 @@ $error-color: #7F0037
   color: $text-color
   position: relative
   font-size: 16px
+
+audio
+  display: none
 
 html, body
   background: transparent
@@ -41,32 +44,60 @@ body
     .user
       background-image: url('img/youtube.png')
 
-  &.system
-    background: #000
+  .user
+    font-weight: bold
+    border-bottom: 3px solid $line-color
+    margin: 10px
+    padding: 0 0 0 30px
+    text-overflow: ellipsis
+    overflow: hidden
+    background: center left no-repeat
+    background-size: 20px 20px
+    line-height: 40px
 
-  &.success
-    background: $success-color
-
-  &.info
-    background: $info-color
-
-  &.error
-    background: $error-color
-
-.user
-  font-weight: bold
-  border-bottom: 3px solid $line-color
-  margin: 10px
-  padding: 0 0 0 30px
-  text-overflow: ellipsis
-  overflow: hidden
-  background: center left no-repeat
-  background-size: 20px 20px
-  line-height: 40px
-
-.content
-  padding: 0 10px 10px
-  word-wrap: break-word
+  .content
+    padding: 0 10px 10px
+    word-wrap: break-word
 
   img
     height: 18px
+
+.system
+  background: #000
+
+.info
+  margin: 10px
+  padding: 10px
+  background: left 10px center no-repeat $info-color
+  background-size: auto 20px
+
+  u
+    color: yellow
+
+  b
+    color: aquamarine
+
+  p
+    padding: 5px 5px 5px 30px
+
+  &.twitch
+    background-image: url('img/twitch.png')
+
+  &.goodgame
+    background-image: url('img/goodgame.png')
+
+  &.trovo
+    background-image: url('img/trovo.png')
+
+  &.youtube
+    background-image: url('img/youtube.png')
+
+.success
+  @extend .info
+  background-color: $success-color
+
+.error
+  @extend .info
+  background-color: $error-color
+
+

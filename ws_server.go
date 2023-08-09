@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"os"
 	"slices"
 	"yudole-chat/messages"
 )
@@ -51,4 +54,26 @@ func accept(w http.ResponseWriter, r *http.Request) {
 	if err = ws.Close(); err != nil {
 		log.Println(err)
 	}
+}
+
+func chat(w http.ResponseWriter, req *http.Request) {
+	dir, _ := os.Getwd()
+	theme := req.URL.Query().Get("theme")
+
+	_, err := os.Stat(fmt.Sprintf("%s/public/themes/%s/index.html", dir, theme))
+	if errors.Is(err, os.ErrNotExist) {
+		log.Printf("Theme \"%s\" not found. Using system theme", theme)
+
+		Out <- messages.System{
+			Type:    "error/theme/notfound",
+			Service: "system",
+			Value:   theme,
+		}
+
+		theme = "system"
+	}
+
+	buf, _ := os.ReadFile(fmt.Sprintf("%s/public/themes/%s/index.html", dir, theme))
+
+	w.Write(buf)
 }

@@ -74,16 +74,16 @@ body {
 .info p, .error p, .success p {
   padding: 5px 5px 5px 30px;
 }
-.info.twitch, .twitch.error, .twitch.success {
+.info.twitch, .error.twitch, .success.twitch {
   background-image: url("img/twitch.png");
 }
-.info.goodgame, .goodgame.error, .goodgame.success {
+.info.goodgame, .error.goodgame, .success.goodgame {
   background-image: url("img/goodgame.png");
 }
-.info.trovo, .trovo.error, .trovo.success {
+.info.trovo, .error.trovo, .success.trovo {
   background-image: url("img/trovo.png");
 }
-.info.youtube, .youtube.error, .youtube.success {
+.info.youtube, .error.youtube, .success.youtube {
   background-image: url("img/youtube.png");
 }
 

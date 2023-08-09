@@ -65,7 +65,7 @@ body
 .system
   background: #000
 
-.info
+.info, .error, .success
   margin: 10px
   padding: 10px
   background: left 10px center no-repeat $info-color
@@ -93,11 +93,9 @@ body
     background-image: url('img/youtube.png')
 
 .success
-  @extend .info
   background-color: $success-color
 
 .error
-  @extend .info
   background-color: $error-color
 
 

@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8"/>
-    <title>Yudole chat</title>
+    <title>Yudole chat :: system theme</title>
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
-    <link href="themes/system/theme.css" rel="stylesheet"/>
+    <link href="/themes/RedAlert2/theme.css" rel="stylesheet"/>
     <template class="message">
         <div class="message {{service}}"><p class="user">{{user_name}}&nbsp;</p><p class="content">{{content}}</p></div>
     </template>
@@ -14,18 +14,22 @@
         <div class="success {{service}}"><p class="content">{{content}}</p></div>
     </template>
     <template class="error">
-        <div class="error {{service}}"><p class="user">{{user_name}}</p><p class="content">{{content}}</p></div>
+        <div class="error {{service}}"><p class="content">{{content}}</p></div>
     </template>
     <template class="info">
         <div class="info {{service}}"><p>{{content}}</p></div>
     </template>
 </head>
 <body>
-<audio src="/ogg/message.ogg" class="message" preload="auto"></audio>
 
 <main></main>
 
 <script src="js/reconnecting-websocket.js"></script>
 <script src="js/client.js"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const theme = params.get('theme');
+    // alert(myParam)
+</script>
 </body>
 </html>

@@ -1,4 +1,7 @@
 $bg-color: #1E1F22
+$error-color: #960000
+$success-color: #1A5900
+$info-color: #004B82
 
 @keyframes slide-left
   0%
@@ -76,11 +79,10 @@ body
     img
       height: 30px
 
-  &.system
-    background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat
+  //&.system
+  //  background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat
 
-
-.user-name
+.user
   font-weight: bold
   border-bottom: 3px solid darkgrey
   padding: 5px 5px 5px 20px
@@ -90,3 +92,26 @@ body
 .content
   padding: 5px 10px
   word-wrap: break-word
+
+.error, .success, .info
+  background: repeating-linear-gradient(to bottom, $error-color 0px, $error-color 2px, lighten($error-color, 3%) 2px, lighten($error-color, 3%) 4px) center center no-repeat
+  margin: 10px 10px 20px 30px
+  border-radius: 10px
+  padding: 10px
+  animation: slide-left 30s
+  left: 110%
+
+  u
+    color: yellow
+
+  b
+    color: aquamarine
+
+  p
+    padding: 5px 10px
+
+.success
+  background-image: repeating-linear-gradient(to bottom, $success-color 0px, $success-color 2px, lighten($success-color, 3%) 2px, lighten($success-color, 3%) 4px)
+
+.info
+  background-image: repeating-linear-gradient(to bottom, $info-color 0px, $info-color 2px, lighten($info-color, 3%) 2px, lighten($info-color, 3%) 4px)

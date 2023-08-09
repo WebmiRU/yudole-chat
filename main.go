@@ -11,20 +11,37 @@ import (
 	"yudole-chat/twitch"
 )
 
+var Out = make(chan any, 999)
+
 func main() {
 	godotenv.Load()
 
-	http.HandleFunc("/chat", accept) // Чат стримера, отображает все сообщения
+	http.HandleFunc("/server", accept) // Сервер чата
+	http.HandleFunc("/chat", chat)     // Чат стримера, отображает все сообщения
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
 	go twitch.Connect()
 	go goodgame.Connect()
 	go trovo.Connect()
 
-	// Чтение общих сообщений
+	// Чтение сообщений
 	go func() {
 		for {
 			select {
+			// System
+			case message := <-Out:
+				fmt.Println("MESSAGE:", message)
+
+				for len(wsClients) == 0 {
+					time.Sleep(1 * time.Second)
+					continue
+				}
+
+				for _, ws := range wsClients {
+					ws.WriteJSON(message)
+				}
+				break
+
 			// Twitch
 			case message := <-twitch.Out:
 				fmt.Println("MESSAGE:", message)

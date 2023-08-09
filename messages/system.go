@@ -5,5 +5,5 @@ type System struct {
 	Service string `json:"service"`
 	User    User   `json:"user"`
 	Channel string `json:"channel"`
-	//Value   string `json:"value"`
+	Value   string `json:"value"`
 }

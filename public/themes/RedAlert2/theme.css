@@ -78,11 +78,8 @@ body {
 .message.trovo img {
   height: 30px;
 }
-.message.system {
-  background: repeating-linear-gradient(to bottom, #1E1F22 0px, #1E1F22 2px, #2B2D30 2px, #2B2D30 4px) center center no-repeat;
-}
 
-.user-name {
+.user {
   font-weight: bold;
   border-bottom: 3px solid darkgrey;
   padding: 5px 5px 5px 20px;
@@ -93,6 +90,32 @@ body {
 .content {
   padding: 5px 10px;
   word-wrap: break-word;
+}
+
+.error, .success, .info {
+  background: repeating-linear-gradient(to bottom, #960000 0px, #960000 2px, #a50000 2px, #a50000 4px) center center no-repeat;
+  margin: 10px 10px 20px 30px;
+  border-radius: 10px;
+  padding: 10px;
+  animation: slide-left 30s;
+  left: 110%;
+}
+.error u, .success u, .info u {
+  color: yellow;
+}
+.error b, .success b, .info b {
+  color: aquamarine;
+}
+.error p, .success p, .info p {
+  padding: 5px 10px;
+}
+
+.success {
+  background-image: repeating-linear-gradient(to bottom, #1A5900 0px, #1A5900 2px, #1e6800 2px, #1e6800 4px);
+}
+
+.info {
+  background-image: repeating-linear-gradient(to bottom, #004B82 0px, #004B82 2px, #005491 2px, #005491 4px);
 }
 
 /*# sourceMappingURL=theme.css.map */

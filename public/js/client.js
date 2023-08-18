@@ -4,6 +4,10 @@ const successTemplate = document.querySelector('template.success');
 const errorTemplate = document.querySelector('template.error');
 const infoTemplate = document.querySelector('template.info');
 
+const params = new URLSearchParams(window.location.search);
+const theme = params.get('theme');
+const soundMessage = params.has('sound_message');
+
 // Добавляем тег аудио для обычных сообщений
 const audioMessage = document.createElement('audio')
 audioMessage.setAttribute('src', '/ogg/message.ogg');
@@ -72,7 +76,8 @@ function message(msg) {
 
     }
 
-    audioMessage.play()
+
+    if (soundMessage) audioMessage.play()
 }
 
 const msg21 = {"type": "user/join/channel", "service": "twitch", "text": "", "user": {"login": "xxxyyy", "nick": "", "avatar_url": "", "color": ""}, "channel": "ewolf34", "value": ""};
